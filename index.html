@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sir Ahmed Yekini | Computing Assistant</title>
+  <meta name="description" content="Sir Ahmed Yekini's Computing Assistant for JHS 1, JHS 2 and JHS 3 students.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">SY</div>
+      <div><strong>Sir Ahmed Yekini</strong><span>Computing Assistant</span></div>
+    </div>
+    <select id="level" aria-label="JHS level">
+      <option value="JHS 1">JHS 1</option>
+      <option value="JHS 2">JHS 2</option>
+      <option value="JHS 3">JHS 3</option>
+    </select>
+  </header>
+
+  <main class="app">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">YOUR COMPUTING STUDY PARTNER</p>
+        <h1>Learn Computing.<br><span>Understand. Practice. Improve.</span></h1>
+        <p>Ask questions, get simple explanations, practise with quizzes, and prepare for Computing examinations.</p>
+      </div>
+      <div class="hero-card">
+        <b>What can I help with?</b>
+        <div class="chips">
+          <button data-prompt="Explain computer hardware in simple terms.">Hardware</button>
+          <button data-prompt="Teach me algorithms with an easy example.">Algorithms</button>
+          <button data-prompt="Teach me computer networks.">Networking</button>
+          <button data-prompt="Give me a short Computing quiz.">Quiz me</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="chat-card">
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="message bot">
+          <div class="avatar">SY</div>
+          <div><b>Sir Ahmed's Assistant</b><p>Welcome! I'm here to help you learn <strong>Computing</strong>. Tell me your question or choose a topic above.</p></div>
+        </div>
+      </div>
+      <form id="chat-form" class="composer">
+        <textarea id="prompt" rows="1" placeholder="Ask a Computing question..." required></textarea>
+        <button id="send" type="submit">Send</button>
+      </form>
+      <small class="notice">For learning support. Always verify important school/exam requirements with your teacher.</small>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
