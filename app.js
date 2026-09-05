@@ -19,7 +19,7 @@ function addMessage(text, who = "bot") {
     who === "bot" ? "Sir Ahmed's Assistant" : "You";
 
   const p = document.createElement("p");
-  p.textContent = text;
+  p.innerHTML = formatMarkdown(text);
 
   body.append(name, p);
   row.append(avatar, body);
