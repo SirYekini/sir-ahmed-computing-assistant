@@ -1,22 +1,121 @@
-const form=document.getElementById("chat-form"), input=document.getElementById("prompt"), messages=document.getElementById("messages"), level=document.getElementById("level"), send=document.getElementById("send");
+const form = document.getElementById("chat-form");
+const input = document.getElementById("prompt");
+const messages = document.getElementById("messages");
+const level = document.getElementById("level");
+const send = document.getElementById("send");
 
-function addMessage(text, who="bot"){
-  const row=document.createElement("div"); row.className=`message ${who}`;
-  const avatar=document.createElement("div"); avatar.className="avatar"; avatar.textContent=who==="bot"?"SY":"YOU";
-  const body=document.createElement("div"); const name=document.createElement("b"); name.textContent=who==="bot"?"Sir Ahmed's Assistant":"You";
-  const p=document.createElement("p"); p.textContent=text; body.append(name,p); row.append(avatar,body); messages.append(row); messages.scrollTop=messages.scrollHeight;
+function addMessage(text, who = "bot") {
+  const row = document.createElement("div");
+  row.className = `message ${who}`;
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = who === "bot" ? "SY" : "YOU";
+
+  const body = document.createElement("div");
+
+  const name = document.createElement("b");
+  name.textContent =
+    who === "bot" ? "Sir Ahmed's Assistant" : "You";
+
+  const p = document.createElement("p");
+  p.textContent = text;
+
+  body.append(name, p);
+  row.append(avatar, body);
+
+  messages.append(row);
+  messages.scrollTop = messages.scrollHeight;
 }
-async function ask(text){
-  addMessage(text,"user"); input.value=""; send.disabled=true; send.textContent="...";
-  const typing=document.createElement("div"); typing.className="message bot"; typing.innerHTML='<div class="avatar">SY</div><div><b>Sir Ahmed\\'s Assistant</b><p class="typing">Thinking...</p></div>'; messages.append(typing); messages.scrollTop=messages.scrollHeight;
-  try{
-    const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,level:level.value})});
-    const data=await r.json(); typing.remove();
-    if(!r.ok) throw new Error(data.error||"Request failed");
-    addMessage(data.reply||"I couldn't produce an answer. Please try again.");
-  }catch(e){typing.remove();addMessage("Sorry, I couldn't connect right now. Please try again in a moment.");console.error(e)}
-  finally{send.disabled=false;send.textContent="Send";input.focus()}
+
+async function ask(text) {
+  addMessage(text, "user");
+
+  input.value = "";
+  send.disabled = true;
+  send.textContent = "...";
+
+  const typing = document.createElement("div");
+  typing.className = "message bot";
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = "SY";
+
+  const body = document.createElement("div");
+
+  const name = document.createElement("b");
+  name.textContent = "Sir Ahmed's Assistant";
+
+  const p = document.createElement("p");
+  p.className = "typing";
+  p.textContent = "Thinking...";
+
+  body.append(name, p);
+  typing.append(avatar, body);
+
+  messages.append(typing);
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: text,
+        level: level.value
+      })
+    });
+
+    const data = await response.json();
+
+    typing.remove();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Request failed");
+    }
+
+    addMessage(
+      data.reply || "I couldn't produce an answer. Please try again."
+    );
+
+  } catch (error) {
+    typing.remove();
+
+    addMessage(
+      "Sorry, I couldn't connect to the Computing Assistant right now. Please try again."
+    );
+
+    console.error(error);
+
+  } finally {
+    send.disabled = false;
+    send.textContent = "Send";
+    input.focus();
+  }
 }
-form.addEventListener("submit",e=>{e.preventDefault(); if(input.value.trim()) ask(input.value.trim())});
-document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>ask(b.dataset.prompt)));
-input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
+
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const text = input.value.trim();
+
+  if (text) {
+    ask(text);
+  }
+});
+
+document.querySelectorAll("[data-prompt]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    ask(button.dataset.prompt);
+  });
+});
+
+input.addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
