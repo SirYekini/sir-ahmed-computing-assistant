@@ -4,19 +4,7 @@ const messages = document.getElementById("messages");
 const level = document.getElementById("level");
 const send = document.getElementById("send");
 
-function formatMarkdown(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
-    .replace(/^\- (.*?)$/gm, "<li>$1</li>")
-    .replace(/\n/g, "<br>");
-}
-}function addMessage(text, who = "bot") {
+function addMessage(text, who = "bot") {
   const row = document.createElement("div");
   row.className = `message ${who}`;
 
@@ -30,9 +18,9 @@ function formatMarkdown(text) {
   name.textContent =
     who === "bot" ? "Sir Ahmed's Assistant" : "You";
 
- const p = document.createElement("div");
- p.className = "message-content";
- p.innerHTML = formatMarkdown(text);
+  const p = document.createElement("p");
+  p.textContent = text;
+
   body.append(name, p);
   row.append(avatar, body);
 
@@ -93,14 +81,14 @@ async function ask(text) {
       data.reply || "I couldn't produce an answer. Please try again."
     );
 
- } catch (error) {
+  } catch (error) {
     typing.remove();
 
     addMessage(
-      "ERROR: " + error.message
+      "Sorry, I couldn't connect to the Computing Assistant right now. Please try again."
     );
 
-    console.error("FULL ERROR:", error);
+    console.error(error);
 
   } finally {
     send.disabled = false;
