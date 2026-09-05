@@ -13,7 +13,9 @@ function formatMarkdown(text) {
     .replace(/^### (.*?)$/gm, "<h3>$1</h3>")
     .replace(/^## (.*?)$/gm, "<h2>$1</h2>")
     .replace(/^# (.*?)$/gm, "<h1>$1</h1>")
+    .replace(/^\- (.*?)$/gm, "<li>$1</li>")
     .replace(/\n/g, "<br>");
+}
 }function addMessage(text, who = "bot") {
   const row = document.createElement("div");
   row.className = `message ${who}`;
@@ -28,9 +30,9 @@ function formatMarkdown(text) {
   name.textContent =
     who === "bot" ? "Sir Ahmed's Assistant" : "You";
 
-  const p = document.createElement("p");
-  p.innerHTML = formatMarkdown(text);
-
+ const p = document.createElement("div");
+ p.className = "message-content";
+ p.innerHTML = formatMarkdown(text);
   body.append(name, p);
   row.append(avatar, body);
 
