@@ -83,8 +83,8 @@ Computing topics include:
 Always adapt your explanation to ${level}.
 `;
 
-  const url =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
+ const url =
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
 
   const requestBody = {
     systemInstruction: {
