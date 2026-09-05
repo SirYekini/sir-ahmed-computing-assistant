@@ -81,14 +81,14 @@ async function ask(text) {
       data.reply || "I couldn't produce an answer. Please try again."
     );
 
-  } catch (error) {
+ } catch (error) {
     typing.remove();
 
     addMessage(
-      "Sorry, I couldn't connect to the Computing Assistant right now. Please try again."
+      "ERROR: " + error.message
     );
 
-    console.error(error);
+    console.error("FULL ERROR:", error);
 
   } finally {
     send.disabled = false;
