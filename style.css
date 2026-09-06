@@ -21,3 +21,30 @@
   margin-left: 20px;
   margin-bottom: 5px;
 }
+.learning-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 0 4px;
+}
+
+.learning-tools button {
+  border: 1px solid #d9deea;
+  background: #ffffff;
+  color: #172033;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.learning-tools button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.learning-tools button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
