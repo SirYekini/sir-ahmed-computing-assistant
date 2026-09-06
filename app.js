@@ -3,6 +3,7 @@ const input = document.getElementById("prompt");
 const messages = document.getElementById("messages");
 const level = document.getElementById("level");
 const send = document.getElementById("send");
+let lastQuestion = "";
 
 function formatMarkdown(text) {
   return text
@@ -39,9 +40,12 @@ function addMessage(text, who = "bot") {
   messages.scrollTop = messages.scrollHeight;
 }
 
-async function ask(text) {
-  addMessage(text, "user");
+async function ask(text, remember = true) {
+  if (remember) {
+    lastQuestion = text;
+  }
 
+  addMessage(text, "user");
   input.value = "";
   send.disabled = true;
   send.textContent = "...";
@@ -134,22 +138,38 @@ document.querySelectorAll("[data-action]").forEach(function (button) {
   button.addEventListener("click", function () {
     const action = button.dataset.action;
 
+    if (!lastQuestion) {
+      addMessage(
+        "Please ask me a Computing question first, then choose one of the learning tools.",
+        "bot"
+      );
+      return;
+    }
+
     const actions = {
       explain:
-        "Explain the last Computing topic again in simpler language. Use an example suitable for my selected JHS level.",
+        `The student's previous Computing question was: "${lastQuestion}"
+
+Explain this topic again in simpler language for the selected JHS level. Give a clear explanation and one simple example.`,
 
       quiz:
-        "Give me a short Computing quiz based on the last topic. Ask 5 questions appropriate for my selected JHS level. Do not show the answers yet.",
+        `The student's previous Computing question was: "${lastQuestion}"
+
+Create a short 5-question quiz about this topic for the selected JHS level. Do not give the answers yet.`,
 
       test:
-        "Test my knowledge of the last Computing topic. Ask me one question at a time and wait for my answer before continuing. Tell me whether my answer is correct and explain the answer.",
+        `The student's previous Computing question was: "${lastQuestion}"
+
+Test the student on this topic. Ask ONE question appropriate for the selected JHS level and wait for the student's answer.`,
 
       examples:
-        "Give me three practical examples of the last Computing topic. Make the examples appropriate for my selected JHS level."
+        `The student's previous Computing question was: "${lastQuestion}"
+
+Give three practical examples related to this Computing topic. Make the examples appropriate for the selected JHS level and explain each example briefly.`
     };
 
     if (actions[action]) {
-      ask(actions[action]);
+      ask(actions[action], false);
     }
   });
 });
