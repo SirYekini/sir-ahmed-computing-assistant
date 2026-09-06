@@ -130,3 +130,26 @@ input.addEventListener("keydown", function (event) {
     form.requestSubmit();
   }
 });
+document.querySelectorAll("[data-action]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    const action = button.dataset.action;
+
+    const actions = {
+      explain:
+        "Explain the last Computing topic again in simpler language. Use an example suitable for my selected JHS level.",
+
+      quiz:
+        "Give me a short Computing quiz based on the last topic. Ask 5 questions appropriate for my selected JHS level. Do not show the answers yet.",
+
+      test:
+        "Test my knowledge of the last Computing topic. Ask me one question at a time and wait for my answer before continuing. Tell me whether my answer is correct and explain the answer.",
+
+      examples:
+        "Give me three practical examples of the last Computing topic. Make the examples appropriate for my selected JHS level."
+    };
+
+    if (actions[action]) {
+      ask(actions[action]);
+    }
+  });
+});
