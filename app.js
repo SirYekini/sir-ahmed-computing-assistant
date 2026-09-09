@@ -280,3 +280,42 @@ document.querySelectorAll("[data-action]").forEach(function (button) {
   });
 
 });
+// ===============================
+// QUIZ MODE
+// ===============================
+
+const startQuizButton = document.getElementById("start-quiz");
+
+if (startQuizButton) {
+  startQuizButton.addEventListener("click", function () {
+
+    if (conversationHistory.length === 0) {
+      addMessage(
+        "Please ask me a Computing question first. I will use that topic for your quiz."
+      );
+      return;
+    }
+
+    const quizRequest =
+      `Start a 5-question Computing quiz based on the topic we are currently discussing.
+
+Use the selected level: ${level.value}.
+
+Rules:
+- Ask ONE question at a time.
+- Do not give the answer immediately.
+- Wait for the student's answer.
+- After the student answers, tell them whether it is correct or incorrect.
+- Give a short explanation.
+- Then ask the next question.
+- Keep track of the student's score.
+- After question 5, give the final score out of 5.
+- Make the questions appropriate for ${level.value}.`;
+
+    ask(
+      quizRequest,
+      false,
+      "🚀 Start Quiz Mode"
+    );
+  });
+}
