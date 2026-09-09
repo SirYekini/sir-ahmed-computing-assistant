@@ -280,15 +280,25 @@ document.querySelectorAll("[data-action]").forEach(function (button) {
   });
 
 });
+```javascript
 // ===============================
 // QUIZ MODE
 // ===============================
 
+let quizMode = false;
+let quizQuestionNumber = 0;
+let quizScore = 0;
+let quizTopic = "";
+let quizQuestions = [];
+
+// Start Quiz button
 const startQuizButton = document.getElementById("start-quiz");
 
 if (startQuizButton) {
-  startQuizButton.addEventListener("click", function () {
 
+  startQuizButton.addEventListener("click", async function () {
+
+    // Make sure the student has discussed a topic first
     if (conversationHistory.length === 0) {
       addMessage(
         "Please ask me a Computing question first. I will use that topic for your quiz."
@@ -296,26 +306,207 @@ if (startQuizButton) {
       return;
     }
 
-    const quizRequest =
-      `Start a 5-question Computing quiz based on the topic we are currently discussing.
+    // Start a new quiz
+    quizMode = true;
+    quizQuestionNumber = 0;
+    quizScore = 0;
 
-Use the selected level: ${level.value}.
+    // Find the most recent Computing topic
+    quizTopic =
+      conversationHistory[0]?.text ||
+      lastQuestion ||
+      "the Computing topic we are discussing";
+
+    addMessage("🚀 Quiz Mode started! Get ready for 5 questions.");
+
+    // Ask Gemini to create the quiz
+    const quizRequest = `
+Create a 5-question Computing quiz for ${level.value}.
+
+The topic being discussed is:
+${quizTopic}
 
 Rules:
+- Create exactly 5 questions.
 - Ask ONE question at a time.
-- Do not give the answer immediately.
-- Wait for the student's answer.
-- After the student answers, tell them whether it is correct or incorrect.
-- Give a short explanation.
-- Then ask the next question.
+- Do not show the answers.
+- Questions must be appropriate for ${level.value}.
+- Use clear Computing questions.
+- Wait for the student's answer before continuing.
 - Keep track of the student's score.
-- After question 5, give the final score out of 5.
-- Make the questions appropriate for ${level.value}.`;
+`;
 
-    ask(
-      quizRequest,
-      false,
-      "🚀 Start Quiz Mode"
-    );
+    try {
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          message: quizRequest,
+          level: level.value
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Quiz request failed");
+      }
+
+      const reply =
+        data.reply ||
+        "I couldn't start the quiz. Please try again.";
+
+      // Save quiz information
+      conversationHistory.push({
+        role: "Assistant",
+        text: reply
+      });
+
+      addMessage(reply);
+
+      // Tell the system that the next student message is a quiz answer
+      quizQuestionNumber = 1;
+
+    } catch (error) {
+
+      console.error("QUIZ ERROR:", error);
+
+      quizMode = false;
+
+      addMessage(
+        "Sorry, I couldn't start Quiz Mode right now. Please try again."
+      );
+    }
+
   });
+
 }
+
+
+// =====================================
+// HANDLE ANSWERS WHILE IN QUIZ MODE
+// =====================================
+
+form.addEventListener("submit", async function (event) {
+
+  // If Quiz Mode is not active, allow the normal
+  // submit event above to handle the message.
+  if (!quizMode) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const answer = input.value.trim();
+
+  if (!answer) {
+    return;
+  }
+
+  // Show student's answer
+  addMessage(answer, "user");
+
+  input.value = "";
+
+  send.disabled = true;
+  send.textContent = "...";
+
+  // Tell Gemini that this is the student's answer
+  const quizAnswerRequest = `
+The student is currently taking a 5-question Computing quiz.
+
+Quiz topic:
+${quizTopic}
+
+This is Question ${quizQuestionNumber} of 5.
+
+The student's answer is:
+"${answer}"
+
+Evaluate the student's answer.
+
+Rules:
+- Say whether the answer is correct or incorrect.
+- Give a short explanation.
+- If it is incorrect, give the correct answer.
+- If Question ${quizQuestionNumber} is less than 5, ask the next question.
+- Ask only ONE next question.
+- Do not reveal answers to future questions.
+- If this is Question 5, give the student's final score out of 5.
+`;
+
+  try {
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        message: quizAnswerRequest,
+        level: level.value
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Quiz answer request failed");
+    }
+
+    const reply =
+      data.reply ||
+      "I couldn't evaluate that answer. Please try again.";
+
+    addMessage(reply);
+
+    // Save the quiz exchange
+    conversationHistory.push({
+      role: "Student",
+      text: answer
+    });
+
+    conversationHistory.push({
+      role: "Assistant",
+      text: reply
+    });
+
+    // Move to the next question
+    quizQuestionNumber++;
+
+    // After Question 5, end Quiz Mode
+    if (quizQuestionNumber > 5) {
+
+      quizMode = false;
+      quizQuestionNumber = 0;
+
+      addMessage(
+        "🎉 Quiz Mode completed! You can start another quiz whenever you're ready."
+      );
+    }
+
+  } catch (error) {
+
+    console.error("QUIZ ANSWER ERROR:", error);
+
+    addMessage(
+      "Sorry, I couldn't process your quiz answer. Please try again."
+    );
+
+  } finally {
+
+    send.disabled = false;
+    send.textContent = "Send";
+    input.focus();
+
+  }
+
+});
+```
